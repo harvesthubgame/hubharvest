@@ -1,0 +1,230 @@
+# =====================================================
+# HARVEST HUB - GITIGNORE
+# Clean repository for GitHub Actions build
+# =====================================================
+
+# =====================================================
+# PERSONAL/LOCAL CONFIGURATION (CRITICAL - DO NOT REMOVE)
+# These files contain local paths, usernames, and machine-specific data
+# =====================================================
+local.properties
+*.local
+.env
+.env.*
+key.properties
+
+# =====================================================
+# SIGNING & SECURITY (NEVER COMMIT)
+# =====================================================
+*.jks
+*.keystore
+*.key
+*.pem
+*.p12
+*.pfx
+google-services.json
+GoogleService-Info.plist
+firebase_app_id_file.json
+
+# Keystore generation output (from scripts/generate-keystore.*)
+keystore-output/
+*-keystore-base64.txt
+*-release.jks
+GITHUB_SECRETS_REMINDER.txt
+
+# =====================================================
+# IDE & EDITOR FILES (User-specific settings)
+# =====================================================
+
+# IntelliJ IDEA / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+# VS Code (uncomment if you want to exclude VS Code settings)
+.vscode/
+*.code-workspace
+
+# Other editors
+.atom/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# =====================================================
+# OS GENERATED FILES
+# =====================================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+Icon?
+.fseventsd
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# =====================================================
+# FLUTTER / DART
+# =====================================================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+pubspec.lock
+**/doc/api/
+.metadata
+
+# Flutter generated plugin registrants (recreated on build)
+lib/generated_plugin_registrant.dart
+
+# =====================================================
+# iOS SPECIFIC
+# =====================================================
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Runner.xcworkspace/xcuserdata/
+**/ios/Runner.xcodeproj/xcuserdata/
+**/ios/Runner.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Xcode
+**/*.xcuserstate
+**/xcuserdata/
+**/*.xcscmblueprint
+**/*.xccheckout
+DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# =====================================================
+# ANDROID SPECIFIC
+# =====================================================
+**/android/.gradle/
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/captures/
+**/android/local.properties
+
+# NOTE: gradlew, gradlew.bat, and gradle-wrapper.jar are KEPT for CI builds
+# Do NOT add them to .gitignore!
+
+# Generated files
+**/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+.cxx/
+*.apk
+*.aab
+
+# =====================================================
+# BUILD OUTPUTS & ARTIFACTS
+# =====================================================
+/build/
+**/build/
+*.class
+*.dex
+*.ap_
+*.apk
+*.so
+*.o
+*.a
+bin/
+gen/
+out/
+obj/
+
+# Symbolication & Obfuscation
+app.*.symbols
+app.*.map.json
+
+# =====================================================
+# LOGS & TEMPORARY FILES
+# =====================================================
+*.log
+*.tmp
+*.temp
+*.cache
+*.bak
+*.backup
+*.orig
+
+# Crash logs
+crash.log
+crashlytics-build.properties
+fabric.properties
+
+# =====================================================
+# DOCUMENTATION BUILD (if generated)
+# =====================================================
+doc/api/
+
+# =====================================================
+# TEST & COVERAGE
+# =====================================================
+coverage/
+.test/
+test-results/
+*.lcov
+
+# Documentation
+documentation/
+
+# =====================================================
+# MISCELLANEOUS
+# =====================================================
+.history/
+.svn/
+.hg/
+.buildlog/
+migrate_working_dir/
+.swiftpm/
+
+# Fastlane (if used)
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# =====================================================
+# GRADLE (Extra protection)
+# =====================================================
+.gradle/
+gradle-app.setting
+!gradle-wrapper.properties
+local.properties

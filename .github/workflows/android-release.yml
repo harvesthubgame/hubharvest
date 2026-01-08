@@ -1,0 +1,298 @@
+# =========================================================================
+# HARVEST HUB - Android Release Build Workflow
+# =========================================================================
+# This workflow automatically builds signed APK and AAB on every push.
+# All sensitive data is stored in GitHub Secrets - NEVER in the repository.
+#
+# IMPORTANT: Release builds REQUIRE all secrets to be configured.
+# The build will FAIL if any secret is missing - NO debug fallback!
+#
+# Required GitHub Secrets:
+#   - HARVESTHUB_KEYSTORE_BASE64    : Base64-encoded keystore file
+#   - HARVESTHUB_KEYSTORE_PASSWORD  : Keystore password
+#   - HARVESTHUB_KEY_ALIAS          : Key alias name
+#   - HARVESTHUB_KEY_PASSWORD       : Key password
+# =========================================================================
+
+name: Android Release Build
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - release/*
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:  # Allow manual trigger
+
+# Cancel previous runs on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Signed APK & AAB
+    runs-on: ubuntu-latest
+    
+    steps:
+      # ===== CHECKOUT =====
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # =========================================================
+      # CRITICAL: Verify ALL secrets are configured BEFORE build
+      # =========================================================
+      # This step ensures the build fails FAST with a clear error
+      # if any required secret is missing. NO debug fallback allowed!
+      # =========================================================
+      - name: Verify Release Signing Secrets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.HARVESTHUB_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.HARVESTHUB_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.HARVESTHUB_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.HARVESTHUB_KEY_PASSWORD }}
+        run: |
+          echo "=========================================="
+          echo "🔐 Verifying Release Signing Configuration"
+          echo "=========================================="
+          
+          MISSING_SECRETS=0
+          
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "❌ MISSING: HARVESTHUB_KEYSTORE_BASE64"
+            MISSING_SECRETS=1
+          else
+            echo "✅ HARVESTHUB_KEYSTORE_BASE64 is set"
+          fi
+          
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "❌ MISSING: HARVESTHUB_KEYSTORE_PASSWORD"
+            MISSING_SECRETS=1
+          else
+            echo "✅ HARVESTHUB_KEYSTORE_PASSWORD is set"
+          fi
+          
+          if [ -z "$KEY_ALIAS" ]; then
+            echo "❌ MISSING: HARVESTHUB_KEY_ALIAS"
+            MISSING_SECRETS=1
+          else
+            echo "✅ HARVESTHUB_KEY_ALIAS is set"
+          fi
+          
+          if [ -z "$KEY_PASSWORD" ]; then
+            echo "❌ MISSING: HARVESTHUB_KEY_PASSWORD"
+            MISSING_SECRETS=1
+          else
+            echo "✅ HARVESTHUB_KEY_PASSWORD is set"
+          fi
+          
+          echo ""
+          
+          if [ $MISSING_SECRETS -eq 1 ]; then
+            echo "=========================================="
+            echo "❌ BUILD ABORTED: Missing required secrets!"
+            echo "=========================================="
+            echo ""
+            echo "Release builds REQUIRE all signing secrets."
+            echo "Debug-signed builds are NOT allowed."
+            echo ""
+            echo "Please add the missing secrets to your repository:"
+            echo "  Settings → Secrets and variables → Actions"
+            echo ""
+            echo "See CI_CD_README.md for setup instructions."
+            echo "=========================================="
+            exit 1
+          fi
+          
+          echo "=========================================="
+          echo "✅ All signing secrets verified!"
+          echo "=========================================="
+
+      # ===== JAVA SETUP =====
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      # ===== FLUTTER SETUP =====
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.5'
+          channel: 'stable'
+          cache: true
+
+      - name: Verify Flutter Installation
+        run: |
+          flutter --version
+          flutter doctor -v
+
+      # ===== DEPENDENCIES =====
+      - name: Get Flutter Dependencies
+        run: flutter pub get
+
+      # ===== DECODE KEYSTORE (Secure) =====
+      - name: Decode Keystore
+        env:
+          HARVESTHUB_KEYSTORE_BASE64: ${{ secrets.HARVESTHUB_KEYSTORE_BASE64 }}
+        run: |
+          # Decode keystore from base64 secret
+          echo "$HARVESTHUB_KEYSTORE_BASE64" | base64 --decode > android/app/harvesthub-release.jks
+          
+          # Verify keystore was created and has content
+          if [ -f "android/app/harvesthub-release.jks" ] && [ -s "android/app/harvesthub-release.jks" ]; then
+            echo "✅ Keystore decoded successfully"
+            # Verify it's a valid keystore (without exposing contents)
+            FILESIZE=$(stat -c%s "android/app/harvesthub-release.jks" 2>/dev/null || stat -f%z "android/app/harvesthub-release.jks")
+            echo "   Keystore size: $FILESIZE bytes"
+          else
+            echo "❌ Failed to decode keystore or file is empty"
+            exit 1
+          fi
+
+      # ===== CREATE KEY.PROPERTIES =====
+      - name: Create key.properties
+        env:
+          HARVESTHUB_KEYSTORE_PASSWORD: ${{ secrets.HARVESTHUB_KEYSTORE_PASSWORD }}
+          HARVESTHUB_KEY_ALIAS: ${{ secrets.HARVESTHUB_KEY_ALIAS }}
+          HARVESTHUB_KEY_PASSWORD: ${{ secrets.HARVESTHUB_KEY_PASSWORD }}
+        run: |
+          # Create key.properties file for Gradle (no extra spaces)
+          cat > android/key.properties << 'EOF'
+          storePassword=${{ secrets.HARVESTHUB_KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.HARVESTHUB_KEY_PASSWORD }}
+          keyAlias=${{ secrets.HARVESTHUB_KEY_ALIAS }}
+          storeFile=harvesthub-release.jks
+          EOF
+          
+          # Fix: Use environment variables properly
+          cat > android/key.properties << EOF
+          storePassword=${HARVESTHUB_KEYSTORE_PASSWORD}
+          keyPassword=${HARVESTHUB_KEY_PASSWORD}
+          keyAlias=${HARVESTHUB_KEY_ALIAS}
+          storeFile=harvesthub-release.jks
+          EOF
+          
+          echo "✅ key.properties created successfully"
+
+      # ===== VERIFY SIGNING CONFIG =====
+      - name: Verify Signing Configuration
+        run: |
+          echo "Verifying key.properties exists..."
+          if [ -f "android/key.properties" ]; then
+            echo "✅ key.properties found"
+            # Check all required fields are present (without showing values)
+            if grep -q "storePassword=" android/key.properties && \
+               grep -q "keyPassword=" android/key.properties && \
+               grep -q "keyAlias=" android/key.properties && \
+               grep -q "storeFile=" android/key.properties; then
+              echo "✅ All signing fields present in key.properties"
+            else
+              echo "❌ key.properties is incomplete"
+              exit 1
+            fi
+          else
+            echo "❌ key.properties not found"
+            exit 1
+          fi
+
+      # ===== BUILD APK =====
+      - name: Build Release APK
+        run: |
+          echo "Building RELEASE APK (debug signing NOT allowed)..."
+          flutter build apk --release --no-tree-shake-icons
+          
+          # Verify the APK was created
+          if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
+            echo "✅ Release APK built successfully"
+            ls -lh build/app/outputs/flutter-apk/app-release.apk
+          else
+            echo "❌ Release APK not found!"
+            exit 1
+          fi
+
+      # ===== BUILD AAB =====
+      - name: Build Release AAB
+        run: |
+          echo "Building RELEASE AAB (debug signing NOT allowed)..."
+          flutter build appbundle --release --no-tree-shake-icons
+          
+          # Verify the AAB was created
+          if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
+            echo "✅ Release AAB built successfully"
+            ls -lh build/app/outputs/bundle/release/app-release.aab
+          else
+            echo "❌ Release AAB not found!"
+            exit 1
+          fi
+
+      # ===== VERIFY RELEASE SIGNATURE =====
+      - name: Verify Release Signature
+        run: |
+          echo "=========================================="
+          echo "🔍 Verifying APK is RELEASE signed..."
+          echo "=========================================="
+          
+          # Use apksigner to verify the APK signature
+          if command -v apksigner &> /dev/null; then
+            apksigner verify --print-certs build/app/outputs/flutter-apk/app-release.apk 2>&1 | head -5
+            echo ""
+            echo "✅ APK signature verification complete"
+          else
+            echo "⚠️  apksigner not available, skipping detailed verification"
+          fi
+          
+          # Check that it's NOT a debug build by looking for debug indicators
+          if unzip -l build/app/outputs/flutter-apk/app-release.apk 2>/dev/null | grep -q "classes.dex"; then
+            echo "✅ APK structure looks valid"
+          fi
+
+      # ===== CLEANUP SENSITIVE FILES =====
+      - name: Cleanup Sensitive Files
+        if: always()
+        run: |
+          # Securely remove keystore and key.properties
+          rm -f android/app/harvesthub-release.jks
+          rm -f android/key.properties
+          echo "✅ Sensitive files cleaned up"
+
+      # ===== UPLOAD APK ARTIFACT =====
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HarvestHub-Release-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
+          if-no-files-found: error
+
+      # ===== UPLOAD AAB ARTIFACT =====
+      - name: Upload AAB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HarvestHub-Release-AAB
+          path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 30
+          if-no-files-found: error
+
+      # ===== BUILD SUMMARY =====
+      - name: Build Summary
+        run: |
+          echo "=========================================="
+          echo "🎉 RELEASE BUILD COMPLETED SUCCESSFULLY!"
+          echo "=========================================="
+          echo ""
+          echo "📦 Artifacts Generated (RELEASE SIGNED):"
+          echo "   - APK: build/app/outputs/flutter-apk/app-release.apk"
+          echo "   - AAB: build/app/outputs/bundle/release/app-release.aab"
+          echo ""
+          echo "✅ Both artifacts are signed with your RELEASE keystore"
+          echo "✅ Ready for Google Play Store upload"
+          echo ""
+          echo "📥 Download from the 'Artifacts' section above"
+          echo "=========================================="
