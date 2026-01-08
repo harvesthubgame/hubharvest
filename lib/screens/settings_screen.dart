@@ -200,14 +200,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             'Game progress and settings are saved locally '
                             'on your device and never leave it.',
                       ),
-                      const SizedBox(height: 10),
-                      _buildPrivacySection(
-                        icon: Icons.child_care,
-                        title: 'Kid-Friendly',
-                        content:
-                            'This game contains no ads, no in-app purchases, '
-                            'and no third-party tracking.',
-                      ),
                     ],
                   ),
                 ),
