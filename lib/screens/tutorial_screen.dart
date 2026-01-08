@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../widgets/game_button.dart';
+import '../models/tutorial_slide.dart';
 
 class TutorialScreen extends StatefulWidget {
-  const TutorialScreen({super.key});
+  final List<TutorialSlide>? slides;
+
+  const TutorialScreen({super.key, this.slides});
 
   @override
   State<TutorialScreen> createState() => _TutorialScreenState();
@@ -12,27 +15,33 @@ class TutorialScreen extends StatefulWidget {
 class _TutorialScreenState extends State<TutorialScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  late List<TutorialSlide> _slides;
 
-  final List<Map<String, String>> _slides = [
-    {
-      'title': 'Feed the Animals',
-      'description':
-          'Drag the correct feed to the hungry animals. Cow eats Hay, Sheep eats Grain, Goat eats Vitamins.',
-      'image': 'assets/images/hay.png', // Placeholder or use composition
-    },
-    {
-      'title': 'Shoo the Pests',
-      'description':
-          'Tap on rats and crows before they steal the feed! You get bonus coins for stopping them.',
-      'image': 'assets/images/rat.png',
-    },
-    {
-      'title': 'Collect Produce',
-      'description':
-          'After 3 feedings, animals start glowing. Tap them to collect produce and earn big rewards!',
-      'image': 'assets/images/glowing_cow.png',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _slides = widget.slides ??
+        [
+          const TutorialSlide(
+            title: 'Feed the Animals',
+            description:
+                'Drag the correct feed to the hungry animals. Cow eats Hay, Sheep eats Grain, Goat eats Vitamins.',
+            imagePath: 'assets/images/hay.png',
+          ),
+          const TutorialSlide(
+            title: 'Shoo the Pests',
+            description:
+                'Tap on rats and crows before they steal the feed! You get bonus coins for stopping them.',
+            imagePath: 'assets/images/rat.png',
+          ),
+          const TutorialSlide(
+            title: 'Collect Produce',
+            description:
+                'After 3 feedings, animals start glowing. Tap them to collect produce and earn big rewards!',
+            imagePath: 'assets/images/glowing_cow.png',
+          ),
+        ];
+  }
 
   @override
   void dispose() {
@@ -46,6 +55,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
       backgroundColor: HarvestHubTheme.skyBlue,
       body: Stack(
         children: [
+          // Main Content
           PageView.builder(
             controller: _pageController,
             onPageChanged: (index) {
@@ -56,40 +66,53 @@ class _TutorialScreenState extends State<TutorialScreen> {
             itemCount: _slides.length,
             itemBuilder: (context, index) {
               final slide = _slides[index];
-              return Padding(
-                padding: const EdgeInsets.all(40.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      slide['title']!,
-                      style: HarvestHubTheme.themeData.textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 30),
-                    Container(
-                      height: 200,
-                      width: 300,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(20),
+              return CustomScrollView(
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32.0, vertical: 20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 60), // Space for back button
+                          Text(
+                            slide.title,
+                            style: HarvestHubTheme.themeData.textTheme.titleLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 20),
+                          Container(
+                            height: 200,
+                            width: double.infinity,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            padding: const EdgeInsets.all(20.0),
+                            child: Image.asset(
+                              slide.imagePath,
+                              fit: BoxFit.contain,
+                              errorBuilder: (c, o, s) => const Icon(
+                                  Icons.image,
+                                  size: 60,
+                                  color: HarvestHubTheme.soilBrown),
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          Text(
+                            slide.description,
+                            style: HarvestHubTheme.themeData.textTheme.bodyLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 120), // Space for nav controls
+                        ],
                       ),
-                      child: Image.asset(
-                        slide['image']!,
-                        height: 150,
-                        fit: BoxFit.contain,
-                        errorBuilder: (c, o, s) =>
-                            const Icon(Icons.image, size: 80),
-                      ),
                     ),
-                    const SizedBox(height: 30),
-                    Text(
-                      slide['description']!,
-                      style: HarvestHubTheme.themeData.textTheme.bodyLarge,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               );
             },
           ),
@@ -161,28 +184,33 @@ class _TutorialScreenState extends State<TutorialScreen> {
           // "Got It" Button on last slide
           if (_currentPage == _slides.length - 1)
             Positioned(
-              bottom: 80,
-              right: 40,
-              child: GameButton(
-                label: 'Got It!',
-                width: 150,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+              bottom: 90, // Adjusted to be above nav controls if needed or clearer
+              right: 20,
+              child: SafeArea(
+                child: GameButton(
+                  label: 'Got It!',
+                  width: 140,
+                  height: 50,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
               ),
             ),
 
           // Back Button
           Positioned(
-            top: 20,
-            left: 20,
-            child: IconButton(
-              icon: const Icon(
-                Icons.arrow_back,
-                size: 32,
-                color: HarvestHubTheme.darkGrey,
+            top: 10,
+            left: 10,
+            child: SafeArea(
+              child: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back,
+                  size: 32,
+                  color: HarvestHubTheme.darkGrey,
+                ),
+                onPressed: () => Navigator.of(context).pop(),
               ),
-              onPressed: () => Navigator.of(context).pop(),
             ),
           ),
         ],
