@@ -81,6 +81,12 @@ class _LevelCompleteOverlayState extends State<LevelCompleteOverlay>
     final stars = widget.game.gameManager.stars;
     final score = widget.game.gameManager.score.value;
     final day = widget.game.initialLevel;
+    
+    final screenSize = MediaQuery.of(context).size;
+    // Responsive width: 90% of screen width, max 340
+    final dialogWidth = (screenSize.width * 0.90).clamp(280.0, 340.0);
+    final starSize = (dialogWidth * 0.15).clamp(40.0, 52.0);
+    final buttonWidth = (dialogWidth - 60) / (day < 10 ? 3 : 2) - 4;
 
     return Scaffold(
       backgroundColor: Colors.black54,
@@ -88,8 +94,11 @@ class _LevelCompleteOverlayState extends State<LevelCompleteOverlay>
         child: ScaleTransition(
           scale: _modalScale,
           child: Container(
-            width: 500,
-            padding: const EdgeInsets.all(HarvestHubTheme.spacingLarge),
+            width: dialogWidth,
+            padding: const EdgeInsets.symmetric(
+              horizontal: HarvestHubTheme.spacingMedium,
+              vertical: HarvestHubTheme.spacingLarge,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(HarvestHubTheme.cardRadius),
@@ -99,50 +108,45 @@ class _LevelCompleteOverlayState extends State<LevelCompleteOverlay>
               children: [
                 Text(
                   'Day Complete!',
-                  style: HarvestHubTheme.themeData.textTheme.displayLarge,
+                  style: HarvestHubTheme.themeData.textTheme.displayMedium,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
                 // Stars
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(3, (index) {
-                    // Logic:
-                    // If index < stars, use ScaleTransition with _starAnimations[index] and gold star
-                    // If index >= stars, show silver star (maybe static or faded in)
-
                     if (index < stars) {
                       return Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
                         child: ScaleTransition(
                           scale: _starAnimations[index],
                           child: Image.asset(
                             'assets/images/stargold.png',
-                            width: 64,
-                            height: 64,
+                            width: starSize,
+                            height: starSize,
                           ),
                         ),
                       );
                     } else {
-                      // Empty/Silver stars show immediately
                       return Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
                         child: Image.asset(
                           'assets/images/starsilver.png',
-                          width: 64,
-                          height: 64,
+                          width: starSize,
+                          height: starSize,
                         ),
                       );
                     }
                   }),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
 
                 Text(
                   'Score: $score',
-                  style: HarvestHubTheme.themeData.textTheme.titleLarge,
+                  style: HarvestHubTheme.themeData.textTheme.titleMedium,
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -150,7 +154,9 @@ class _LevelCompleteOverlayState extends State<LevelCompleteOverlay>
                     GameButton(
                       label: 'Menu',
                       color: HarvestHubTheme.lightGrey,
-                      width: 140,
+                      width: buttonWidth,
+                      height: 46,
+                      fontSize: 16,
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
@@ -158,7 +164,9 @@ class _LevelCompleteOverlayState extends State<LevelCompleteOverlay>
                     GameButton(
                       label: 'Replay',
                       color: HarvestHubTheme.harvestGold,
-                      width: 140,
+                      width: buttonWidth,
+                      height: 46,
+                      fontSize: 16,
                       onPressed: () {
                         Navigator.of(
                           context,
@@ -169,7 +177,9 @@ class _LevelCompleteOverlayState extends State<LevelCompleteOverlay>
                       GameButton(
                         label: 'Next',
                         color: HarvestHubTheme.growthGreen,
-                        width: 140,
+                        width: buttonWidth,
+                        height: 46,
+                        fontSize: 16,
                         onPressed: () {
                           Navigator.of(
                             context,

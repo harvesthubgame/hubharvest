@@ -66,52 +66,72 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             ),
           ),
           
-          // Content
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo
-                Image.asset(
-                  'assets/images/logo.png',
-                  width: 300,
-                  errorBuilder: (c, o, s) => Text('Harvest Hub', style: HarvestHubTheme.themeData.textTheme.displayLarge),
-                ),
-                const SizedBox(height: 40),
+          // Content - Scrollable for small screens
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Calculate responsive logo size (max 250, min 120)
+                final logoSize = (constraints.maxWidth * 0.45).clamp(120.0, 250.0);
+                // Calculate responsive spacing
+                final verticalSpacing = (constraints.maxHeight * 0.025).clamp(12.0, 24.0);
+                final logoSpacing = (constraints.maxHeight * 0.04).clamp(20.0, 40.0);
                 
-                // Play Button
-                GameButton(
-                  label: 'Play',
-                  color: HarvestHubTheme.growthGreen,
-                  onPressed: () {
-                    Navigator.of(context).pushNamed(GameRoutes.levelSelect);
-                  },
-                ),
-                const SizedBox(height: 20),
-                
-                // Tutorial Button
-                GameButton(
-                  label: 'How to Play',
-                  color: HarvestHubTheme.harvestGold,
-                  onPressed: () {
-                    Navigator.of(context).pushNamed(GameRoutes.tutorial);
-                  },
-                ),
-                const SizedBox(height: 20),
-                
-                // Settings Button
-                GameButton(
-                  label: 'Settings',
-                  color: HarvestHubTheme.lightGrey,
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const SettingsScreen(),
-                      barrierDismissible: true,
-                    );
-                  },
-                ),
-              ],
+                return Center(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(
+                      vertical: verticalSpacing,
+                      horizontal: 20,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Logo - responsive size
+                        Image.asset(
+                          'assets/images/logo.png',
+                          width: logoSize,
+                          height: logoSize,
+                          errorBuilder: (c, o, s) => Text('Harvest Hub', style: HarvestHubTheme.themeData.textTheme.displayLarge),
+                        ),
+                        SizedBox(height: logoSpacing),
+                        
+                        // Play Button
+                        GameButton(
+                          label: 'Play',
+                          color: HarvestHubTheme.growthGreen,
+                          onPressed: () {
+                            Navigator.of(context).pushNamed(GameRoutes.levelSelect);
+                          },
+                        ),
+                        SizedBox(height: verticalSpacing),
+                        
+                        // Tutorial Button
+                        GameButton(
+                          label: 'How to Play',
+                          color: HarvestHubTheme.harvestGold,
+                          onPressed: () {
+                            Navigator.of(context).pushNamed(GameRoutes.tutorial);
+                          },
+                        ),
+                        SizedBox(height: verticalSpacing),
+                        
+                        // Settings Button
+                        GameButton(
+                          label: 'Settings',
+                          color: HarvestHubTheme.lightGrey,
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => const SettingsScreen(),
+                              barrierDismissible: true,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
 
@@ -119,11 +139,13 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           Positioned(
             top: 20,
             left: 20,
-            child: IconButton(
-              icon: const Icon(Icons.exit_to_app, size: 32, color: Colors.white),
-              onPressed: () {
-                SystemNavigator.pop();
-              },
+            child: SafeArea(
+              child: IconButton(
+                icon: const Icon(Icons.exit_to_app, size: 32, color: Colors.white),
+                onPressed: () {
+                  SystemNavigator.pop();
+                },
+              ),
             ),
           ),
         ],

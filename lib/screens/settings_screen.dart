@@ -38,6 +38,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showAboutDialog() {
+    final screenSize = MediaQuery.of(context).size;
+    final dialogWidth = (screenSize.width * 0.85).clamp(260.0, 340.0);
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -45,81 +48,84 @@ class _SettingsScreenState extends State<SettingsScreen> {
           borderRadius: BorderRadius.circular(HarvestHubTheme.cardRadius),
         ),
         child: Container(
-          padding: const EdgeInsets.all(HarvestHubTheme.spacingLarge),
-          width: 420,
+          padding: const EdgeInsets.all(HarvestHubTheme.spacingMedium),
+          width: dialogWidth,
+          constraints: BoxConstraints(maxHeight: screenSize.height * 0.7),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(HarvestHubTheme.cardRadius),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'About Harvest Hub',
-                    style: HarvestHubTheme.themeData.textTheme.titleLarge,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: HarvestHubTheme.spacingMedium),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: HarvestHubTheme.skyBlue.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Image.asset(
-                      'assets/images/logo.png',
-                      width: 80,
-                      height: 80,
-                      errorBuilder: (c, o, s) => const Icon(
-                        Icons.agriculture,
-                        size: 60,
-                        color: HarvestHubTheme.growthGreen,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
                     Text(
-                      'Harvest Hub: Feed & Thrive',
-                      style: HarvestHubTheme.themeData.textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
+                      'About Harvest Hub',
+                      style: HarvestHubTheme.themeData.textTheme.titleMedium,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Version 1.0.0',
-                      style: HarvestHubTheme.themeData.textTheme.bodySmall
-                          ?.copyWith(color: HarvestHubTheme.darkGrey),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 22),
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: HarvestHubTheme.spacingMedium),
-              Text(
-                'Welcome to your own little farm! Feed hungry animals by dragging '
-                'the right food to them. Cows love hay, sheep prefer grain, and '
-                'goats need their vitamins. Keep them happy, collect rewards, '
-                'and watch out for pesky pests!\n\n'
-                'A fun, family-friendly game for all ages. No violence, just '
-                'farming fun!',
-                style: HarvestHubTheme.themeData.textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: HarvestHubTheme.spacingMedium),
-              Text(
-                '© 2025 Harvest Hub',
-                style: HarvestHubTheme.themeData.textTheme.bodySmall
-                    ?.copyWith(color: HarvestHubTheme.lightGrey),
-              ),
-            ],
+                const SizedBox(height: HarvestHubTheme.spacingSmall),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: HarvestHubTheme.skyBlue.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        'assets/images/logo.png',
+                        width: 60,
+                        height: 60,
+                        errorBuilder: (c, o, s) => const Icon(
+                          Icons.agriculture,
+                          size: 50,
+                          color: HarvestHubTheme.growthGreen,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Harvest Hub: Feed & Thrive',
+                        style: HarvestHubTheme.themeData.textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Version 1.0.0',
+                        style: HarvestHubTheme.themeData.textTheme.bodySmall
+                            ?.copyWith(color: HarvestHubTheme.darkGrey),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: HarvestHubTheme.spacingSmall),
+                Text(
+                  'Welcome to your own little farm! Feed hungry animals by dragging '
+                  'the right food to them. Cows love hay, sheep prefer grain, and '
+                  'goats need their vitamins. Keep them happy, collect rewards, '
+                  'and watch out for pesky pests!\n\n'
+                  'A fun, friendly game for all ages. Just '
+                  'farming fun!',
+                  style: HarvestHubTheme.themeData.textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: HarvestHubTheme.spacingSmall),
+                Text(
+                  '© 2025 Harvest Hub',
+                  style: HarvestHubTheme.themeData.textTheme.bodySmall
+                      ?.copyWith(color: HarvestHubTheme.lightGrey),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -127,6 +133,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showPrivacyDialog() {
+    final screenSize = MediaQuery.of(context).size;
+    final dialogWidth = (screenSize.width * 0.85).clamp(260.0, 340.0);
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -134,75 +143,82 @@ class _SettingsScreenState extends State<SettingsScreen> {
           borderRadius: BorderRadius.circular(HarvestHubTheme.cardRadius),
         ),
         child: Container(
-          padding: const EdgeInsets.all(HarvestHubTheme.spacingLarge),
-          width: 420,
+          padding: const EdgeInsets.all(HarvestHubTheme.spacingMedium),
+          width: dialogWidth,
+          constraints: BoxConstraints(maxHeight: screenSize.height * 0.7),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(HarvestHubTheme.cardRadius),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Privacy Policy',
-                    style: HarvestHubTheme.themeData.textTheme.titleLarge,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: HarvestHubTheme.spacingMedium),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildPrivacySection(
-                      icon: Icons.wifi_off,
-                      title: 'Offline Game',
-                      content: 'Harvest Hub works completely offline. '
-                          'No internet connection is required to play.',
+                    Text(
+                      'Privacy Policy',
+                      style: HarvestHubTheme.themeData.textTheme.titleMedium,
                     ),
-                    const SizedBox(height: 12),
-                    _buildPrivacySection(
-                      icon: Icons.security,
-                      title: 'No Data Collection',
-                      content: 'We do not collect, store, or share any '
-                          'personal information. Your privacy is safe with us.',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildPrivacySection(
-                      icon: Icons.save,
-                      title: 'Local Storage Only',
-                      content: 'Game progress and settings are saved locally '
-                          'on your device and never leave it.',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildPrivacySection(
-                      icon: Icons.child_care,
-                      title: 'Kid-Friendly',
-                      content: 'This game contains no ads, no in-app purchases, '
-                          'and no third-party tracking.',
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 22),
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: HarvestHubTheme.spacingMedium),
-              Text(
-                'Last updated: January 2025',
-                style: HarvestHubTheme.themeData.textTheme.bodySmall
-                    ?.copyWith(color: HarvestHubTheme.lightGrey),
-              ),
-            ],
+                const SizedBox(height: HarvestHubTheme.spacingSmall),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildPrivacySection(
+                        icon: Icons.wifi_off,
+                        title: 'Offline Game',
+                        content:
+                            'Harvest Hub works completely offline. '
+                            'No internet connection is required to play.',
+                      ),
+                      const SizedBox(height: 10),
+                      _buildPrivacySection(
+                        icon: Icons.security,
+                        title: 'No Data Collection',
+                        content:
+                            'We do not collect, store, or share any '
+                            'personal information. Your privacy is safe with us.',
+                      ),
+                      const SizedBox(height: 10),
+                      _buildPrivacySection(
+                        icon: Icons.save,
+                        title: 'Local Storage Only',
+                        content:
+                            'Game progress and settings are saved locally '
+                            'on your device and never leave it.',
+                      ),
+                      const SizedBox(height: 10),
+                      _buildPrivacySection(
+                        icon: Icons.child_care,
+                        title: 'Kid-Friendly',
+                        content:
+                            'This game contains no ads, no in-app purchases, '
+                            'and no third-party tracking.',
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: HarvestHubTheme.spacingSmall),
+                Text(
+                  'Last updated: January 2025',
+                  style: HarvestHubTheme.themeData.textTheme.bodySmall
+                      ?.copyWith(color: HarvestHubTheme.lightGrey),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -225,8 +241,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               Text(
                 title,
-                style: HarvestHubTheme.themeData.textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: HarvestHubTheme.themeData.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
@@ -242,13 +259,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    // Responsive width: 85% of screen width, max 320
+    final dialogWidth = (screenSize.width * 0.85).clamp(260.0, 320.0);
+
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(HarvestHubTheme.cardRadius),
       ),
       child: Container(
-        padding: const EdgeInsets.all(HarvestHubTheme.spacingLarge),
-        width: 400,
+        padding: const EdgeInsets.all(HarvestHubTheme.spacingMedium),
+        width: dialogWidth,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(HarvestHubTheme.cardRadius),
@@ -261,15 +282,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   'Settings',
-                  style: HarvestHubTheme.themeData.textTheme.titleLarge,
+                  style: HarvestHubTheme.themeData.textTheme.titleMedium,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(Icons.close, size: 22),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
-            const SizedBox(height: HarvestHubTheme.spacingLarge),
+            const SizedBox(height: HarvestHubTheme.spacingMedium),
 
             // Music
             Row(
@@ -281,15 +302,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _musicOn
                           ? 'assets/images/speaker.png'
                           : 'assets/images/mute.png',
-                      width: 32,
-                      height: 32,
+                      width: 28,
+                      height: 28,
                       errorBuilder: (c, o, s) =>
                           Icon(_musicOn ? Icons.music_note : Icons.music_off),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     Text(
                       'Music',
-                      style: HarvestHubTheme.themeData.textTheme.bodyLarge,
+                      style: HarvestHubTheme.themeData.textTheme.bodyMedium,
                     ),
                   ],
                 ),
@@ -297,7 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
 
-            const SizedBox(height: HarvestHubTheme.spacingMedium),
+            const SizedBox(height: HarvestHubTheme.spacingSmall),
 
             // SFX
             Row(
@@ -307,13 +328,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     const Icon(
                       Icons.volume_up,
-                      size: 32,
+                      size: 28,
                       color: HarvestHubTheme.darkGrey,
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     Text(
                       'Sound Effects',
-                      style: HarvestHubTheme.themeData.textTheme.bodyLarge,
+                      style: HarvestHubTheme.themeData.textTheme.bodyMedium,
                     ),
                   ],
                 ),
@@ -321,7 +342,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
 
-            const SizedBox(height: HarvestHubTheme.spacingLarge),
+            const SizedBox(height: HarvestHubTheme.spacingMedium),
             const Divider(),
             const SizedBox(height: HarvestHubTheme.spacingSmall),
 
@@ -368,10 +389,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: HarvestHubTheme.themeData.textTheme.bodyLarge,
                 ),
               ),
-              const Icon(
-                Icons.chevron_right,
-                color: HarvestHubTheme.lightGrey,
-              ),
+              const Icon(Icons.chevron_right, color: HarvestHubTheme.lightGrey),
             ],
           ),
         ),

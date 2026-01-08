@@ -35,14 +35,22 @@ class _LevelFailedOverlayState extends State<LevelFailedOverlay> with SingleTick
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    // Responsive width: 90% of screen width, max 320
+    final dialogWidth = (screenSize.width * 0.90).clamp(260.0, 320.0);
+    final buttonWidth = (dialogWidth - 56) / 2;
+    
     return Scaffold(
       backgroundColor: Colors.black54,
       body: Center(
         child: ScaleTransition(
           scale: _scaleAnimation,
           child: Container(
-            width: 450,
-            padding: const EdgeInsets.all(HarvestHubTheme.spacingLarge),
+            width: dialogWidth,
+            padding: const EdgeInsets.symmetric(
+              horizontal: HarvestHubTheme.spacingMedium,
+              vertical: HarvestHubTheme.spacingLarge,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(HarvestHubTheme.cardRadius),
@@ -52,15 +60,16 @@ class _LevelFailedOverlayState extends State<LevelFailedOverlay> with SingleTick
               children: [
                 Text(
                   'Day Failed', 
-                  style: HarvestHubTheme.themeData.textTheme.displayLarge?.copyWith(color: HarvestHubTheme.barnRed),
+                  style: HarvestHubTheme.themeData.textTheme.displayMedium?.copyWith(color: HarvestHubTheme.barnRed),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
                 
                 Text(
                   widget.game.gameManager.failureReason ?? 'Don\'t give up!', 
-                  style: HarvestHubTheme.themeData.textTheme.titleLarge,
+                  style: HarvestHubTheme.themeData.textTheme.titleMedium,
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -68,7 +77,9 @@ class _LevelFailedOverlayState extends State<LevelFailedOverlay> with SingleTick
                     GameButton(
                       label: 'Menu',
                       color: HarvestHubTheme.lightGrey,
-                      width: 150,
+                      width: buttonWidth,
+                      height: 46,
+                      fontSize: 16,
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
@@ -76,7 +87,9 @@ class _LevelFailedOverlayState extends State<LevelFailedOverlay> with SingleTick
                     GameButton(
                       label: 'Try Again',
                       color: HarvestHubTheme.harvestGold,
-                      width: 150,
+                      width: buttonWidth,
+                      height: 46,
+                      fontSize: 16,
                       onPressed: () {
                         Navigator.of(context).pushReplacementNamed(
                           '/game',

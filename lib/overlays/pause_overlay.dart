@@ -36,14 +36,21 @@ class _PauseOverlayState extends State<PauseOverlay> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    // Responsive width: 85% of screen width, max 320
+    final dialogWidth = (screenSize.width * 0.85).clamp(240.0, 320.0);
+    
     return Scaffold(
       backgroundColor: Colors.black54,
       body: Center(
         child: ScaleTransition(
           scale: _scaleAnimation,
           child: Container(
-            width: 400,
-            padding: const EdgeInsets.all(HarvestHubTheme.spacingLarge),
+            width: dialogWidth,
+            padding: const EdgeInsets.symmetric(
+              horizontal: HarvestHubTheme.spacingMedium,
+              vertical: HarvestHubTheme.spacingLarge,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(HarvestHubTheme.cardRadius),
@@ -51,11 +58,14 @@ class _PauseOverlayState extends State<PauseOverlay> with SingleTickerProviderSt
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Paused', style: HarvestHubTheme.themeData.textTheme.displayLarge),
-                const SizedBox(height: 30),
+                Text('Paused', style: HarvestHubTheme.themeData.textTheme.displayMedium),
+                const SizedBox(height: 20),
                 GameButton(
                   label: 'Resume',
                   color: HarvestHubTheme.growthGreen,
+                  width: dialogWidth - 48,
+                  height: 50,
+                  fontSize: 20,
                   onPressed: () {
                      // Reverse animation then remove
                      _controller.reverse().then((_) {
@@ -65,10 +75,13 @@ class _PauseOverlayState extends State<PauseOverlay> with SingleTickerProviderSt
                      });
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
                 GameButton(
                   label: 'Restart',
                   color: HarvestHubTheme.harvestGold,
+                  width: dialogWidth - 48,
+                  height: 50,
+                  fontSize: 20,
                   onPressed: () {
                     widget.game.overlays.remove('Pause');
                     widget.game.resumeEngine();
@@ -78,10 +91,13 @@ class _PauseOverlayState extends State<PauseOverlay> with SingleTickerProviderSt
                     );
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
                 GameButton(
                   label: 'Quit',
                   color: HarvestHubTheme.barnRed,
+                  width: dialogWidth - 48,
+                  height: 50,
+                  fontSize: 20,
                   onPressed: () {
                     widget.game.overlays.remove('Pause');
                     Navigator.of(context).pop(); 
